@@ -15,6 +15,7 @@ function [im, dem, safe] = loadTerrain(name)
   %% upsample with linear interpolation, rescale
   [ix, iy] = meshgrid((1:1000)/2, (1:1000)/2);
   dem = interp2(dem, ix, iy, 'linear', 0);
+  %%dem = interp2(dem, ix, iy, 'cubic', 0);
 
   %% rescale height
   dem = dem .* 10;

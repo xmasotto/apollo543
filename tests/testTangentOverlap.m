@@ -1,7 +1,7 @@
 function testTangentOverlap(dem, safe)
 %%   n = 5
 %%   i = 3
-  %%   j = 2
+%%   j = 2
   n = 1;
   i = 1;
   j = 1;
