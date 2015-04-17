@@ -5,7 +5,7 @@ terrain1 = 'data/terrain1';
 terrain2 = 'data/terrain2';
 terrain3 = 'data/terrain3';
 terrain4 = 'data/terrain4';
-terrain_name = terrain1;
+terrain_name = terrain3;
 
 [im, dem, safe] = loadTerrain(terrain_name);
 
@@ -21,12 +21,12 @@ overlapSearchSpace = linspace(baseOverlap / ratioOverlap, baseOverlap * ratioOve
 angleSearchSpace = linspace(baseAngle / ratioAngle, baseAngle * ratioAngle, 100);
 lineSearch(safe, features, overlapSearchSpace, angleSearchSpace);
 
-%%% n = 10;
-%%% i = 4;
-%%% j = 5;
-n = 1;
-i = 1;
-j = 1;
+n = 10;
+i = 4;
+j = 5;
+%%n = 1;
+%%i = 1;
+%%j = 1;
 
 safeAngle = 10.3;
 safeOverlap = 3.9;
@@ -51,6 +51,10 @@ title('overlap hazard')
 figure;
 showMesh(dem, safe, n, i, j)
 title('actual')
+
+figure;
+imshow(pred);
+title('prediction');
 
 figure;
 imshow(safe);
