@@ -47,12 +47,13 @@ end
 % tree = fitctree(X(ind,:), Y(ind), 'MinLeafSize', 100);
 tree = fitctree(features, labels);
 
+avg = 0;
 for i=1:terrain_count
     pred = predict(tree, samples{i,1});
     pred = reshape(pred, size(dem{i,1}));
     pred = medfilt2(pred, [3, 3]);
 
-    r = 18;
+    r = 21;
     pred(1:r,:) = 0;
     pred(end-r+1:end,:) = 0;
     pred(:,1:r) = 0;
@@ -60,6 +61,7 @@ for i=1:terrain_count
 
     errors = xor(pred, safe{i});
     accuracy = 1 - sum(errors(:)) / numel(errors);
+    avg = avg + accuracy;
     fprintf('ACCURACY for %lu: %0.5f', i, accuracy);
 
     figure;
@@ -71,3 +73,5 @@ for i=1:terrain_count
     title(sprintf('True for %lu', i));
 end
 
+avg = 100 * avg / 4;
+fprintf('Average Accuracy: %0.2f', avg);
