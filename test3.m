@@ -1,103 +1,73 @@
 addpath('viz')
 addpath('tests')
 
-terrain1 = 'data/terrain1';
-terrain2 = 'data/terrain2';
-terrain3 = 'data/terrain3';
-terrain4 = 'data/terrain4';
-terrain_name = terrain4;
+terrains = ['data/terrain1'; 'data/terrain2'; 'data/terrain3'; 'data/terrain4'];
 
-[im, dem, safe] = loadTerrain(terrain_name);
+terrain_count = size(terrains,1);
+im = cell(terrain_count);
+dem = cell(terrain_count);
+safe = cell(terrain_count);
+samples = cell(terrain_count,2);
 
-features = computeFeatures(dem, 18, 16, 2);
-features = smoothFeature(features, 'maxAngle', 2);
+for i=1:terrain_count
+    [im{i}, dem{i}, safe{i}] = loadTerrain(terrains(i,:));
 
-n = prod(size(dem));
-Y = reshape(safe, [n 1]);
-X = zeros(n, 0);
-%%X(:,1) = reshape(features.('maxAngle'), [n 1]);
-%%X(:,2) = reshape(features.('maxOverlap'), [n 1]);
+    features = computeFeatures(dem{i}, 18, 16, 2);
+    features = smoothFeature(features, 'maxAngle', 2);
 
-winsize = 0;
-for y = -winsize:winsize
-    for x = -winsize:winsize
-        X(:,end+1) = reshape(imtranslate(features.('maxAngle'), [y, x]), [n 1]);
-        X(:,end+1) = reshape(imtranslate(features.('maxOverlap'), [y, x]), [n 1]);
+    n = numel(dem{i});
+    Y = reshape(safe{i}, [n 1]);
+    X = zeros(n, 0);
+
+    winsize = 1;
+    for y = -winsize:winsize
+        for x = -winsize:winsize
+            X(:,end+1) = reshape(imtranslate(features.('maxAngle'), [y, x]), [n 1]);
+            X(:,end+1) = reshape(imtranslate(features.('maxOverlap'), [y, x]), [n 1]);
+        end
     end
-end
 
-heightFeatures = getHeightFeatures(dem);
-%% X = [X heightFeatures];
+    heightFeatures = getHeightFeatures(dem{i});
+    X = [X heightFeatures];
+    samples{i,1} = X;
+    samples{i,2} = Y;
+end
 
 disp('got features, training decision tree')
 
-ind = randi(n, [100000 1]);
-tree = fitctree(X(ind,:), Y(ind), 'MinLeafSize', 100);
-
-pred = predict(tree, X);
-pred = reshape(pred, size(dem));
-pred = medfilt2(pred, [3, 3]);
-
-r = 18;
-pred(1:r,:) = 0;
-pred(end-r+1:end,:) = 0;
-pred(:,1:r) = 0;
-pred(:,end-r+1:end) = 0;
-
-errors = xor(pred, safe);
-accuracy = 1 - sum(errors(:)) / prod(size(errors));
-disp(sprintf('ACCURACY: %0.5f', accuracy))
-
-figure;
-imshow(pred);
-title('prediction')
-
-figure;
-imshow(safe);
-title('true')
-
-
-%% Testing Generalization
-[im, dem, safe] = loadTerrain(terrain1);
-
-features = computeFeatures(dem, 18, 16, 2);
-features = smoothFeature(features, 'maxAngle', 2);
-
-n = prod(size(dem));
-Y = reshape(safe, [n 1]);
-X = zeros(n, 0);
-%%X(:,1) = reshape(features.('maxAngle'), [n 1]);
-%%X(:,2) = reshape(features.('maxOverlap'), [n 1]);
-
-winsize = 5;
-for y = -winsize:winsize
-    for x = -winsize:winsize
-        X(:,end+1) = reshape(imtranslate(features.('maxAngle'), [y, x]), [n 1]);
-        X(:,end+1) = reshape(imtranslate(features.('maxOverlap'), [y, x]), [n 1]);
-    end
+f_count = 100000;
+features = zeros(0, size(samples{1,1},2));
+labels = zeros(0, 1);
+for i=1:terrain_count
+    ind = randi(n, [f_count 1]);
+    features(end+1:end+f_count, :) = samples{i,1}(ind,:);
+    labels(end+1:end+f_count, :) = samples{i,2}(ind,:);
 end
 
-heightFeatures = getHeightFeatures(dem);
-X = [X heightFeatures];
+% tree = fitctree(X(ind,:), Y(ind), 'MinLeafSize', 100);
+tree = fitctree(features, labels);
 
-pred = predict(tree, X);
-pred = reshape(pred, size(dem));
-pred = medfilt2(pred, [3, 3]);
+for i=1:terrain_count
+    pred = predict(tree, samples{i,1});
+    pred = reshape(pred, size(dem{i,1}));
+    pred = medfilt2(pred, [3, 3]);
 
-r = 18;
-pred(1:r,:) = 0;
-pred(end-r+1:end,:) = 0;
-pred(:,1:r) = 0;
-pred(:,end-r+1:end) = 0;
+    r = 18;
+    pred(1:r,:) = 0;
+    pred(end-r+1:end,:) = 0;
+    pred(:,1:r) = 0;
+    pred(:,end-r+1:end) = 0;
 
-errors = xor(pred, safe);
-accuracy = 1 - sum(errors(:)) / prod(size(errors));
-disp(sprintf('ACCURACY: %0.5f', accuracy))
+    errors = xor(pred, safe{i});
+    accuracy = 1 - sum(errors(:)) / numel(errors);
+    fprintf('ACCURACY for %lu: %0.5f', i, accuracy);
 
-figure;
-imshow(pred);
-title('prediction')
+    figure;
+    imshow(pred);
+    title(sprintf('Prediction for %lu, Accuracy: %0.3f', i, accuracy*100));
 
-figure;
-imshow(safe);
-title('true')
+    figure;
+    imshow(safe{i});
+    title(sprintf('True for %lu', i));
+end
+
