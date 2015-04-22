@@ -15,6 +15,8 @@ function [overlap] = getTangentOverlap(dem, r, nx, ny, nz, nw, px, py)
 	yr = top:bottom;
 
 	heights = z - (-nw(yr, xr) - nx(yr, xr) .* x - ny(yr, xr) .* y) ./ nz(yr, xr);
+	heights = heights .* nz(yr, xr);
+
 	[Ix2, Iy2] = meshgrid(xr-x, yr-y);
 	heights(Ix2.*Ix2 + Iy2.*Iy2 > r*r) = 0;
 
