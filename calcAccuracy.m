@@ -5,4 +5,3 @@ function [accuracy] = calcAccuracy(predicted, actual)
 errors = xor(predicted, actual);
 accuracy = 100* (1 - sum(errors(:)) / numel(errors));
 end
-

@@ -12,6 +12,7 @@ t_indx = randi(nx-s_train+1, [1 1]);
 train_indx = t_indx: t_indx+s_train-1;
 t_indy = randi(ny-s_train+1, [1 1]);
 train_indy = t_indy: t_indy+s_train-1;
+
 [train_INDX, train_INDY] = meshgrid(train_indx, train_indy);
 train_INDX = train_INDX(:);
 train_INDY = train_INDY(:);
@@ -28,4 +29,3 @@ test_INDY = INDY((mask1 | mask2) | (mask3 | mask4));
 train_idx = sub2ind([nx ny], train_INDX, train_INDY);
 test_idx = sub2ind([nx ny], test_INDX, test_INDY);
 end
-

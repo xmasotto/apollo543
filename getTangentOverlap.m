@@ -1,11 +1,13 @@
-function [overlap] = getTangentOverlap(dem, r, nx, ny, nz, nw, px, py)
+function [overlap, pind] = getTangentOverlap(dem, r, nx, ny, nz, nw, px, py, pz)
   [height, width] = size(dem);
   overlap = zeros(size(dem));
+  pind = zeros(size(dem));
 
   for i = 1:length(px)
 	x = px(i);
 	y = py(i);
-	z = dem(y, x);
+	z = pz(i);
+	%% z = dem(y, x);
 
 	left = max(1, x - r);
 	right = min(width, x + r);
@@ -24,5 +26,9 @@ function [overlap] = getTangentOverlap(dem, r, nx, ny, nz, nw, px, py)
 	ind = heights > subdata;
 	subdata(ind) = heights(ind);
 	overlap(yr, xr) = subdata;
+
+	subpind = pind(yr, xr);
+	subpind(ind) = i;
+	pind(yr, xr) = subpind;
   end
 end

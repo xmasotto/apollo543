@@ -1,23 +1,37 @@
-function [X] = getFeatures(dem)
-%UNTITLED4 Summary of this function goes here
-%   Detailed explanation goes here
+function [X] = getFeatures(im, dem, featurelist)
+  features = computeFeatures(im, dem, 18, 16, 2);
+  features = smoothFeature(features, 'maxAngle', 2);
 
-features = computeFeatures(dem, 18, 16, 2);
-features = smoothFeature(features, 'maxAngle', 2);
+  n = numel(dem);
+  X = zeros(n, 0);
 
-n = numel(dem);
-X = zeros(n, 0);
+  if includefeature('maxAngle', featurelist)
+	X(:,end+1) = reshape(features.('maxAngle'), [n 1]);
+  end
 
-winsize = 1;
-for y = -winsize:winsize
-    for x = -winsize:winsize
-        X(:,end+1) = reshape(imtranslate(features.('maxAngle'), [y, x]), [n 1]);
-        X(:,end+1) = reshape(imtranslate(features.('maxOverlap'), [y, x]), [n 1]);
-    end
+  if includefeature('maxOverlap', featurelist)
+	X(:,end+1) = reshape(features.('maxOverlap'), [n 1]);
+  end
+
+  if includefeature('maxOverlap2', featurelist)
+	X(:,end+1) = reshape(features.('maxOverlap2'), [n 1]);
+  end
+
+  for i = 0:5
+	if includefeature(sprintf('surf%d', i), featurelist)
+	  X(:,end+1) = reshape(features.(sprintf('surf%d', i)), [n 1]);
+	end
+  end
+
+  if includefeature('roughness', featurelist)
+	X(:,end+1) = reshape(features.('roughness'), [n 1]);
+  end
+
+  if includefeature('pad_roughness', featurelist)
+	X(:,end+1) = reshape(features.('pad_roughness'), [n 1]);
+  end
 end
 
-heightFeatures = getHeightFeatures(dem);
-X = [X heightFeatures];
-
+function [res] = includefeature(name, featurelist)
+  res = isempty(featurelist) || ismember(name, featurelist);
 end
-
