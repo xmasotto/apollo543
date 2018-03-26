@@ -27,8 +27,8 @@ Implementation was in Matlab.
 
 ### Results
 
-**Highest score among all the teams:**: https://wiki.illinois.edu/wiki/display/jplteam/2015+Competition+Results
+**Achieved Highest Score among all Teams:** https://wiki.illinois.edu/wiki/display/jplteam/2015+Competition+Results
 
-**2nd Place Overall**
+**Won 2nd Place Overall ($1500)**
 
 <img src="https://i.imgur.com/GOGkwKn.png" width="400"/>
