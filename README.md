@@ -10,7 +10,7 @@
 
 In this competition, our task was to identify safe landing sites on Mars. We are given a specification for what constitutes a safe landing site, which can be directly calculated from a DEM (Digital Elevation Map). 
 
-The ground truth is given a 1024x1024 image, with white pixels corresponding to safe locations, and black pixels unsafe. We are provided with a downsampled DEM (512x512), and a full-resolution image of the terrain (1024x1024). The goal is to use information from both the full-res image and the lower-res DEM to form a prediction.
+The ground truth is given as a 1024x1024 image, with 255 = safe and 0 = unsafe. We are provided with a downsampled DEM (512x512), and a full-resolution image of the terrain (1024x1024). The goal is to use information from both the full-res image and the lower-res DEM to form a prediction.
 
 ### Solution
 
